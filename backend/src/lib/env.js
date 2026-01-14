@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ quiet: true }); // Load environment variables from .env file
 
 const ENV = {
   PORT: process.env.PORT,
