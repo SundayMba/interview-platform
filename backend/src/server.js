@@ -5,6 +5,9 @@ import { connectDB } from './lib/db.js';
 import cors from 'cors';
 import { functions, inngest } from './lib/inngest.js';
 import { serve } from 'inngest/express';
+import { clerkMiddleware } from '@clerk/express';
+import { protectRoute } from './middleware/protectRoute.js';
+import chatRoute from './routes/chatRoute.js';
 
 const __dirname = path.resolve(); // Get the current directory name
 
@@ -14,6 +17,8 @@ const app = express(); // Create an Express applicatio server instance
 app.use(express.json());
 app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
 app.use('/api/inngest', serve({ client: inngest, functions }));
+app.use(clerkMiddleware());
+app.use('/api/chat', protectRoute, chatRoute);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ msg: 'Server is running successfully' });
