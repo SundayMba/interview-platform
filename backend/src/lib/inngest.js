@@ -1,6 +1,7 @@
 import { Inngest } from 'inngest';
 import { connectDB } from './db.js';
 import User from '../models/User.js';
+import { createUpdateUser, deleteUser } from './stream.js';
 
 // Initialize Inngest with a unique identifier for the application
 export const inngest = new Inngest({ id: 'Interview-Platform' });
@@ -22,6 +23,13 @@ const syncUserProfile = inngest.createFunction(
     };
 
     await User.create(newUser);
+
+    // create or update a user on stream chat dashboard
+    await createUpdateUser({
+      id: newUser.clerkId.toString(),
+      name: newUser.name,
+      image: newUser.profileImage,
+    });
   }
 );
 
@@ -34,6 +42,9 @@ const deleteUserProfile = inngest.createFunction(
     const { id } = event.data;
 
     await User.findOneAndDelete({ clerkId: id });
+
+    // delete user from stream chat dashboard
+    await deleteUser(id.toString());
   }
 );
 
