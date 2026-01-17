@@ -29,7 +29,10 @@ const sessionSchema = new mongoose.Schema(
     // stream call ID for video conferencing
     callId: {
       type: String,
-      default: '',
+      required: true,
+      unique: true,
+      immutable: true,
+      index: true,
     },
   },
   { timestamps: true }

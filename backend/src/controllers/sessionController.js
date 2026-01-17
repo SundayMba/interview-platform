@@ -1,5 +1,6 @@
 import { videoClient, chatClient } from '../lib/stream.js';
 import Session from '../models/Session.js';
+import crypto from 'crypto';
 
 export const createSession = async (req, res) => {
   try {
@@ -14,9 +15,7 @@ export const createSession = async (req, res) => {
         .json({ message: 'Problem and difficulty are required' });
     }
 
-    const callId = `session_${Date.now()}_${Math.random()
-      .toString(36)
-      .substring(2)}`;
+    const callId = `session_${crypto.randomUUID()}`;
 
     // create a new session in the database
     const newSession = await Session.create({
@@ -26,25 +25,36 @@ export const createSession = async (req, res) => {
       callId,
     });
 
-    // create a stream video call here (placeholder)
-    await videoClient.video.call('default', callId).getOrCreate({
-      data: {
-        created_by_id: clerkId,
-        custom: {
-          session: newSession._id.toString(),
-          problem,
-          difficulty,
+    try {
+      // create a stream video call here (placeholder)
+      await videoClient.video.call('default', callId).getOrCreate({
+        data: {
+          created_by_id: clerkId,
+          custom: {
+            session: newSession._id.toString(),
+            problem,
+            difficulty,
+          },
         },
-      },
-    });
+      });
 
-    // create a message channel for the session (placeholder)
-    const channel = chatClient.channel('messaging', callId, {
-      name: `${problem} Session`,
-      members: [clerkId],
-      created_by_id: clerkId,
-    });
-    await channel.create();
+      // create a message channel for the session (placeholder)
+      const channel = chatClient.channel('messaging', callId, {
+        name: `${problem} Session`,
+        members: [clerkId],
+        created_by_id: clerkId,
+      });
+      await channel.create();
+    } catch (streamError) {
+      console.error('Error setting up Stream video/chat:', streamError);
+
+      // Optionally, you might want to rollback the session creation here
+      await Session.findByIdAndDelete(newSession._id);
+
+      return res
+        .status(500)
+        .json({ message: 'Failed to set up video/chat for the session' });
+    }
     res.status(201).json({ session: newSession });
   } catch (error) {
     console.error('Error creating session:', error);
@@ -69,12 +79,42 @@ export const getSessionById = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
-export const updateSession = async (req, res) => {};
-export const deleteSession = async (req, res) => {};
+export const updateSession = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const updates = req.body;
+
+    const session = await Session.findByIdAndUpdate(sessionId, updates, {
+      new: true,
+    });
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    res.status(200).json({ session });
+  } catch (error) {
+    console.error('Error updating session:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+export const deleteSession = async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    const session = await Session.findByIdAndDelete(sessionId);
+    if (!session) {
+      return res.status(404).json({ message: 'Session not found' });
+    }
+
+    res.status(200).json({ message: 'Session deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting session:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 export const getActiveSessions = async (_, res) => {
   try {
     const sessions = await Session.find({ status: 'active' })
-      .populate('host', 'name profileImage email clerkId')
+      .populate('host', 'name profileImage clerkId')
       .sort({ createdAt: -1 })
       .limit(20);
     res.status(200).json({ sessions });
@@ -93,7 +133,7 @@ export const getRecentSessions = async (req, res) => {
     })
       .sort({ createdAt: -1 })
       .limit(20)
-      .populate('host participant', 'name profileImage email clerkId');
+      .populate('host participant', 'name profileImage clerkId');
 
     res.status(200).json({ sessions });
   } catch (error) {
@@ -149,16 +189,13 @@ export const endSession = async (req, res) => {
     if (!session) return res.status(404).json({ message: 'Session not found' });
 
     // only the host can end the session
-    if (!session.host.toString().equals(userId)) {
+    if (!session.host.equals(userId)) {
       return res.status(403).json({ message: 'Forbidden: Not the host' });
     }
 
     if (session.status === 'completed') {
       return res.status(400).json({ message: 'Session already completed' });
     }
-
-    session.status = 'completed';
-    await session.save();
 
     // Optionally, you can also remove all participants from the video call and chat channel here
 
@@ -169,6 +206,9 @@ export const endSession = async (req, res) => {
     // delete chat channel
     const channel = chatClient.channel('messaging', session.callId);
     await channel.delete();
+
+    session.status = 'completed';
+    await session.save();
 
     res.status(200).json({ message: 'Session ended successfully', session });
   } catch (error) {

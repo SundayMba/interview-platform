@@ -14,11 +14,11 @@ const router = express.Router();
 
 // Define your session-related routes here
 router.post('/', createSession);
-router.get('/:sessionId', getSessionById);
-router.put('/:sessionId', updateSession);
-router.delete('/:sessionId', deleteSession);
 router.get('/active', getActiveSessions);
 router.get('/recent', getRecentSessions);
+router.put('/:sessionId', updateSession);
+router.get('/:sessionId', getSessionById);
+router.delete('/:sessionId', deleteSession);
 router.post('/:sessionId/join', joinSession);
 router.post('/:sessionId/end', endSession);
 
