@@ -8,10 +8,11 @@ import { serve } from 'inngest/express';
 import { clerkMiddleware } from '@clerk/express';
 import { protectRoute } from './middleware/protectRoute.js';
 import chatRoute from './routes/chatRoute.js';
+import sessionRoute from './routes/sessionRoute.js';
 
 const __dirname = path.resolve(); // Get the current directory name
 
-const app = express(); // Create an Express applicatio server instance
+const app = express(); // Create an Express application server instance
 
 // middleware to parse JSON request bodies
 app.use(express.json());
@@ -19,6 +20,7 @@ app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
 app.use('/api/inngest', serve({ client: inngest, functions }));
 app.use(clerkMiddleware());
 app.use('/api/chat', protectRoute, chatRoute);
+app.use('/api/session', protectRoute, sessionRoute);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ msg: 'Server is running successfully' });
