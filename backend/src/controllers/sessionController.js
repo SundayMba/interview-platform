@@ -56,7 +56,7 @@ export const getSessionById = async (req, res) => {
     const { sessionId } = req.params;
     const session = await Session.findById(sessionId).populate(
       'host participant',
-      'name profileImage email clerkId'
+      'name profileImage clerkId'
     );
 
     if (!session) {
