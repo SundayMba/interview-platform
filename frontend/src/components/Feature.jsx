@@ -6,7 +6,7 @@ const Feature = () => {
       
       <div className="text-center mb-16">
         <h2 className="text-4xl font-black mb-4">
-          Everything you need to  <span className="bg-linear-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-mono">Succeed</span>
+          Everything you need to <span className="bg-linear-to-r from-primary via-secondary to-accent bg-clip-text text-transparent font-mono">Succeed</span>
         </h2>
         <p className="text-lg max-w-2xl mx-auto text-base-content/70">Powerful features designed to make your coding interviews seamless and productive</p>
       </div>

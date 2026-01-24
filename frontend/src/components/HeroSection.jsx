@@ -7,10 +7,9 @@ const HeroSection = () => {
       {/* LEFT SECTION */}
      <div className="space-y-8">
       <div className="badge badge-lg badge-primary">
-        <ZapIcon />
+        <ZapIcon aria-hidden="true" />
         <span>Real-Time Collaboration</span>
       </div>
-
       <h1 className="text-5xl lg:text-7xl font-black leading-tight">
         <span className="bg-linear-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">Code Together,</span> <br />
         <span className="text-base-content">Learn Together</span>
@@ -18,36 +17,34 @@ const HeroSection = () => {
       <p className="text-xl text-base-content/70 leading-relaxed max-w-xl">
         The ultimate platform for collaborative coding interviews and pair programming. Connect face-to-face, code in real-time, and ace your technical interviews.
       </p>
-
       {/* FEATURE PILLS */}
       <div className="flex flex-wrap gap-3">
         <div className="badge badge-lg badge-outline">
-          <CheckIcon className="size-4 text-success" />
+          <CheckIcon className="size-4 text-success" aria-hidden="true" />
           <span>Live Video Chat</span>
         </div>
         <div className="badge badge-lg badge-outline">
-          <CheckIcon className="size-4 text-success" />
+          <CheckIcon className="size-4 text-success" aria-hidden="true" />
           <span>Code Editor</span>
         </div>
         <div className="badge badge-lg badge-outline">
-          <CheckIcon className="size-4 text-success" />
+          <CheckIcon className="size-4 text-success" aria-hidden="true" />
           <span>Multi-Language</span>
         </div>
       </div>
-
       {/* CTA */}
       <div className="flex flex-wrap gap-4">
         <SignInButton mode="modal">
-          <button className="btn btn-primary btn-lg">
+          <button type="button" className="btn btn-primary btn-lg">
             <span>Start Coding Now</span>
-            <ArrowRightIcon className="size-5" />
+            <ArrowRightIcon className="size-5" aria-hidden="true" />
           </button>
         </SignInButton>
-
-        <button className="btn btn-outline btn-lg">
-          <VideoIcon className="size-5"/>
+        <button type="button" className="btn btn-outline btn-lg">
+          <VideoIcon className="size-5" aria-hidden="true" />
           <span>Learn More</span>
         </button>
+
       </div>
 
       {/* STATS */}
