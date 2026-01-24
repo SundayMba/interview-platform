@@ -1,4 +1,4 @@
-import { Code2Icon, Users2Icon, UsersIcon, VideoIcon, ZapIcon } from "lucide-react";
+import { Code2Icon, UsersIcon, VideoIcon, } from "lucide-react";
 
 const Feature = () => {
   return (
