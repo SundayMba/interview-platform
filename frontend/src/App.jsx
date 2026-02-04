@@ -34,7 +34,7 @@ function App() {
           element={isSignedIn ? <Problem /> : <Navigate to="/" />}
         />
       </Routes>
-      <Toaster toastOptions={{ duration: 200 }} />
+      <Toaster toastOptions={{ duration: 2000 }} />
     </>
   );
 }
