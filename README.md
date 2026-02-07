@@ -1,106 +1,79 @@
-# Interview Platform
+<h1 align="center">✨ Full-Stack Interview Platform ✨</h1>
 
-**Overview**
+![Demo App](/frontend/public/screenshot-for-readme.png)
 
-- **Purpose:** Monorepo with `backend` and `frontend` folders for the interview platform.
+✨ Highlights:
 
-**Prerequisites**
-
-- **Node:** v16+ recommended.
-- **npm:** comes with Node; or use `pnpm`/`yarn` if you prefer.
-
-**Quick Setup**
-
-- **Install backend deps:**
-
-```bash
-cd backend
-npm install
-```
-
-- **Install frontend deps:**
-
-```bash
-cd frontend
-npm install
-```
-
-**Development**
-
-- **Backend (recommended):** add a `dev` script in `backend/package.json` (example):
-
-```json
-"scripts": {
-  "dev": "nodemon src/server.js"
-}
-```
-
-Install `nodemon` as a dev dependency:
-
-```bash
-cd backend
-npm install --save-dev nodemon
-# or globally
-npm install -g nodemon
-```
-
-Run backend in dev mode:
-
-```bash
-cd backend
-npm run dev
-```
-
-- **Frontend (typical Vite):**
-
-```bash
-cd frontend
-npm run dev
-```
-
-**Build**
-
-- **Backend:**
-
-```bash
-cd backend
-npm run build
-```
-
-- **Frontend:**
-
-```bash
-cd frontend
-npm run build
-```
-
-**Useful Commands**
-
-- **Create Vite app (one-off):**
-
-```bash
-npx create-vite@latest my-app
-# or with npm
-npm init vite@latest my-app
-```
-
-- **Git: add remote and push main:**
-
-```bash
-git remote add origin git@github.com:SundayMba/interview-platform.git
-git branch -M main
-git push -u origin main
-```
-
-**Notes**
-
-- Run package installs per-folder; there is no root `node_modules` unless you set up a workspace.
-- Running `npx` or `npm init` executes remote package code — only use trusted packages.
+- 🧑‍💻 VSCode-Powered Code Editor
+- 🔐 Authentication via Clerk
+- 🎥 1-on-1 Video Interview Rooms
+- 🧭 Dashboard with Live Stats
+- 🔊 Mic & Camera Toggle, Screen Sharing & Recording
+- 💬 Real-time Chat Messaging
+- ⚙️ Secure Code Execution in Isolated Environment
+- 🎯 Auto Feedback — Success / Fail based on test cases
+- 🎉 Confetti on Success + Notifications on Fail
+- 🧩 Practice Problems Page (solo coding mode)
+- 🔒 Room Locking — allows only 2 participants
+- 🧠 Background Jobs with Inngest (async tasks)
+- 🧰 REST API with Node.js & Express
+- ⚡ Data Fetching & Caching via TanStack Query
+- 🤖 CodeRabbit for PR Analysis & Code Optimization
+- 🧑‍💻 Git & GitHub Workflow (branches, PRs, merges)
+- 🚀 Deployment on Sevalla (free-tier friendly)
 
 ---
 
-If you want, I can:
+## 🧪 .env Setup
 
-- run the installs for you,
-- add the `dev` script to `backend/package.json` and install `nodemon`, or
-- create a simple `.env.example` and commit the README.
+### Backend (`/backend`)
+
+```bash
+PORT=3000
+NODE_ENV=development
+
+DB_URL=your_mongodb_connection_url
+
+INNGEST_EVENT_KEY=your_inngest_event_key
+INNGEST_SIGNING_KEY=your_inngest_signing_key
+
+STREAM_API_KEY=your_stream_api_key
+STREAM_API_SECRET=your_stream_api_secret
+
+CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+
+CLIENT_URL=http://localhost:5173
+```
+
+### Frontend (`/frontend`)
+
+```bash
+VITE_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+
+VITE_API_URL=http://localhost:3000/api
+
+VITE_STREAM_API_KEY=your_stream_api_key
+```
+
+---
+
+## 🔧 Run the Backend
+
+```bash
+
+cd backend
+npm install
+npm run dev
+```
+
+---
+
+## 🔧 Run the Frontend
+
+```
+bash
+cd frontend
+npm install
+npm run dev
+```

@@ -1,47 +1,49 @@
-import express from 'express';
-import ENV from './lib/env.js';
-import path from 'path';
-import { connectDB } from './lib/db.js';
-import cors from 'cors';
-import { functions, inngest } from './lib/inngest.js';
-import { serve } from 'inngest/express';
-import { clerkMiddleware } from '@clerk/express';
-import { protectRoute } from './middleware/protectRoute.js';
-import chatRoute from './routes/chatRoute.js';
-import sessionRoute from './routes/sessionRoute.js';
+import express from "express";
+import path from "path";
+import cors from "cors";
+import { serve } from "inngest/express";
+import { clerkMiddleware } from "@clerk/express";
 
-const __dirname = path.resolve(); // Get the current directory name
+import { ENV } from "./lib/env.js";
+import { connectDB } from "./lib/db.js";
+import { inngest, functions } from "./lib/inngest.js";
 
-const app = express(); // Create an Express application server instance
+import chatRoutes from "./routes/chatRoutes.js";
+import sessionRoutes from "./routes/sessionRoute.js";
 
-// middleware to parse JSON request bodies
+const app = express();
+
+const __dirname = path.resolve();
+
+// middleware
 app.use(express.json());
+// credentials:true meaning?? => server allows a browser to include cookies on request
 app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
-app.use('/api/inngest', serve({ client: inngest, functions }));
-app.use(clerkMiddleware());
-app.use('/api/chat', protectRoute, chatRoute);
-app.use('/api/session', protectRoute, sessionRoute);
+app.use(clerkMiddleware()); // this adds auth field to request object: req.auth()
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ msg: 'Server is running successfully' });
+app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use("/api/chat", chatRoutes);
+app.use("/api/sessions", sessionRoutes);
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ msg: "api is up and running" });
 });
 
-if (ENV.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../frontend/dist'))); // Serve static files from the frontend build directory
+// make our app ready for deployment
+if (ENV.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
-  app.get('/*any', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend', 'dist', 'index.html')); // Serve the main HTML file for any other routes
+  app.get("/{*any}", (req, res) => {
+    res.sendFile(path.join(__dirname, "../frontend", "dist", "index.html"));
   });
 }
 
 const startServer = async () => {
   try {
     await connectDB();
-    app.listen(ENV.PORT, () => {
-      console.log(`Server is running on port ${ENV.PORT}`);
-    });
+    app.listen(ENV.PORT, () => console.log("Server is running on port:", ENV.PORT));
   } catch (error) {
-    console.error('Failed to start server:', error);
+    console.error("💥 Error starting the server", error);
   }
 };
 

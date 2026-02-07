@@ -1,33 +1,31 @@
-import { StreamChat } from 'stream-chat';
-import { StreamClient } from '@stream-io/node-sdk';
-import ENV from './env.js';
+import { StreamChat } from "stream-chat";
+import { StreamClient } from "@stream-io/node-sdk";
+import { ENV } from "./env.js";
 
-const streamAPI = ENV.STREAM_API_KEY;
-const streamSecret = ENV.STREAM_API_SECRET;
+const apiKey = ENV.STREAM_API_KEY;
+const apiSecret = ENV.STREAM_API_SECRET;
 
-if (!streamAPI || !streamSecret) {
-  throw new Error('Stream API key and secret must be provided');
+if (!apiKey || !apiSecret) {
+  console.error("STREAM_API_KEY or STREAM_API_SECRET is missing");
 }
 
-export const chatClient = StreamChat.getInstance(streamAPI, streamSecret); // Initialize Stream Chat client
-export const videoClient = new StreamClient(streamAPI, streamSecret); // Initialize Stream Video client
+export const chatClient = StreamChat.getInstance(apiKey, apiSecret); // will be used chat features
+export const streamClient = new StreamClient(apiKey, apiSecret); // will be used for video calls
 
-export const createUpdateUser = async (userData) => {
+export const upsertStreamUser = async (userData) => {
   try {
     await chatClient.upsertUser(userData);
-    console.log('Stream user created/updated:', userData.id);
+    console.log("Stream user upserted successfully:", userData);
   } catch (error) {
-    console.error('Error creating/updating Stream user:', error);
+    console.error("Error upserting Stream user:", error);
   }
 };
 
-export const deleteUser = async (userId) => {
+export const deleteStreamUser = async (userId) => {
   try {
-    await chatClient.deleteUser(userId, { mark_messages_deleted: true });
-    console.log('Stream user deleted:', userId);
+    await chatClient.deleteUser(userId);
+    console.log("Stream user deleted successfully:", userId);
   } catch (error) {
-    console.error('Error deleting Stream user:', error);
+    console.error("Error deleting the Stream user:", error);
   }
 };
-
-// TODO: Add more Stream-related utility functions as needed like token generation, channel management, etc.

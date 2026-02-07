@@ -1,40 +1,43 @@
+import { useUser } from '@clerk/clerk-react';
+import { Navigate, Route, Routes } from 'react-router';
 import HomePage from './pages/HomePage';
-import { Routes, Route, Navigate } from 'react-router';
+
 import { Toaster } from 'react-hot-toast';
-import { useAuth } from '@clerk/clerk-react';
-import DashBoard from './pages/DashBoardPage';
-import Problems from './pages/ProblemsPage';
-import Problem from './pages/ProblemPage';
+import ProblemPage from './pages/ProblemPage';
+import ProblemsPage from './pages/ProblemsPage';
+import SessionPage from './pages/SessionPage';
+import DashboardPage from './pages/DashBoardPage';
 
 function App() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded } = useUser();
 
-  //wait until auth completes initialiazation
-  if (!isLoaded) {
-    return null;
-  }
+  // this will get rid of the flickering effect
+  if (!isLoaded) return null;
 
   return (
     <>
       <Routes>
-        <Route
-          path="/"
-          element={!isSignedIn ? <HomePage /> : <Navigate to="/dashboard" />}
-        />
+        <Route path="/" element={<HomePage />} />
         <Route
           path="/dashboard"
-          element={isSignedIn ? <DashBoard /> : <Navigate to="/" />}
+          element={isSignedIn ? <DashboardPage /> : <Navigate to={'/'} />}
         />
+
         <Route
           path="/problems"
-          element={isSignedIn ? <Problems /> : <Navigate to="/" />}
+          element={isSignedIn ? <ProblemsPage /> : <Navigate to={'/'} />}
         />
         <Route
-          path="/problems/:problemId"
-          element={isSignedIn ? <Problem /> : <Navigate to="/" />}
+          path="/problem/:id"
+          element={isSignedIn ? <ProblemPage /> : <Navigate to={'/'} />}
+        />
+        <Route
+          path="/session/:id"
+          element={isSignedIn ? <SessionPage /> : <Navigate to={'/'} />}
         />
       </Routes>
-      <Toaster toastOptions={{ duration: 2000 }} />
+
+      <Toaster toastOptions={{ duration: 3000 }} />
     </>
   );
 }

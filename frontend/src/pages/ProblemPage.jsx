@@ -1,58 +1,46 @@
-import { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
-import ProblemDescription from '../components/ProblemDescription';
-import { Group, Panel, Separator } from 'react-resizable-panels';
-import { PROBLEMS } from '../data/problems';
-import { useNavigate, useParams } from 'react-router';
-import CodeEditor from '../components/CodeEditor';
-import { executeCode } from '../lib/piston';
-import toast from 'react-hot-toast';
-import confetti from 'canvas-confetti';
-import OutputPanel from '../components/Output';
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router";
+import { PROBLEMS } from "../data/problems";
+import Navbar from "../components/Navbar";
 
-const ProblemPage = () => {
-  const { problemId } = useParams();
+import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from "react-resizable-panels";
+import ProblemDescription from "../components/ProblemDescription";
+import OutputPanel from "../components/OutputPanel";
+import CodeEditorPanel from "../components/CodeEditorPanel";
+import { executeCode } from "../lib/piston";
+
+import toast from "react-hot-toast";
+import confetti from "canvas-confetti";
+
+function ProblemPage() {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [currentProblemId, setCurrentProblemId] = useState('two-sum');
-  const [selectedLanguage, setSelectedLanguage] = useState('javascript');
-  const [isRunning, setIsRunning] = useState(false);
-  const [code, setCode] = useState(
-    PROBLEMS[currentProblemId].starterCode.javascript || '',
-  );
+
+  const [currentProblemId, setCurrentProblemId] = useState("two-sum");
+  const [selectedLanguage, setSelectedLanguage] = useState("javascript");
+  const [code, setCode] = useState(PROBLEMS[currentProblemId].starterCode.javascript);
   const [output, setOutput] = useState(null);
+  const [isRunning, setIsRunning] = useState(false);
+
   const currentProblem = PROBLEMS[currentProblemId];
 
+  // update problem when URL param changes
   useEffect(() => {
-    if (problemId && PROBLEMS[problemId]) {
-      setCurrentProblemId(problemId);
-      setCode(PROBLEMS[problemId].starterCode[selectedLanguage]);
+    if (id && PROBLEMS[id]) {
+      setCurrentProblemId(id);
+      setCode(PROBLEMS[id].starterCode[selectedLanguage]);
       setOutput(null);
     }
-  }, [problemId, selectedLanguage]);
+  }, [id, selectedLanguage]);
 
-  const problem = PROBLEMS[currentProblemId];
-
-  const onProblemChange = (newProblemId) =>
-    navigate(`/problems/${newProblemId}`);
-
-  const normalizeOutput = (output) => {
-    // normalize output for comparison (trim whitespace, handle different spacing)
-    return output
-      .trim()
-      .split('\n')
-      .map((line) =>
-        line
-          .trim()
-          // remove spaces after [ and before ]
-          .replace(/\[\s+/g, '[')
-          .replace(/\s+\]/g, ']')
-          // normalize spaces around commas to single space after comma
-          .replace(/\s*,\s*/g, ',')
-          .replace(/'/g, '"'),
-      )
-      .filter((line) => line.length > 0)
-      .join('\n');
+  const handleLanguageChange = (e) => {
+    const newLang = e.target.value;
+    setSelectedLanguage(newLang);
+    setCode(currentProblem.starterCode[newLang]);
+    setOutput(null);
   };
+
+  const handleProblemChange = (newProblemId) => navigate(`/problem/${newProblemId}`);
 
   const triggerConfetti = () => {
     confetti({
@@ -68,10 +56,28 @@ const ProblemPage = () => {
     });
   };
 
+  const normalizeOutput = (output) => {
+    // normalize output for comparison (trim whitespace, handle different spacing)
+    return output
+      .trim()
+      .split("\n")
+      .map((line) =>
+        line
+          .trim()
+          // remove spaces after [ and before ]
+          .replace(/\[\s+/g, "[")
+          .replace(/\s+\]/g, "]")
+          // normalize spaces around commas to single space after comma
+          .replace(/\s*,\s*/g, ",")
+      )
+      .filter((line) => line.length > 0)
+      .join("\n");
+  };
+
   const checkIfTestsPassed = (actualOutput, expectedOutput) => {
     const normalizedActual = normalizeOutput(actualOutput);
     const normalizedExpected = normalizeOutput(expectedOutput);
-    // console.log(normalizedActual, normalizedExpected);
+
     return normalizedActual == normalizedExpected;
   };
 
@@ -88,84 +94,64 @@ const ProblemPage = () => {
     if (result.success) {
       const expectedOutput = currentProblem.expectedOutput[selectedLanguage];
       const testsPassed = checkIfTestsPassed(result.output, expectedOutput);
-      // console.log(result.output, expectedOutput, testsPassed);
 
       if (testsPassed) {
         triggerConfetti();
-        toast.success('All tests passed! Great job!');
+        toast.success("All tests passed! Great job!");
       } else {
-        toast.error('Tests failed. Check your output!');
+        toast.error("Tests failed. Check your output!");
       }
     } else {
-      toast.error('Code execution failed!');
+      toast.error("Code execution failed!");
     }
   };
 
-  const onLanguageChange = (event) => {
-    const newLang = event.target.value;
-    setSelectedLanguage(newLang);
-    setCode(problem.starterCode[newLang]);
-    // console.log(selectedLanguage, code);
-    setOutput(null);
-  };
-
   return (
-    <div className="bg-base-100 flex flex-col w-full h-screen overflow-hidden">
+    <div className="h-screen bg-base-100 flex flex-col">
       <Navbar />
-      <div className="flex-1 flex min-h-0 mb-1">
-        <Group
-          orientation="horizontal"
-          className="w-full h-full overflow-hidden"
-        >
-          <Panel
-            defaultSize={40}
-            minSize={30}
-            className="h-full border-2 border-primary/60 shadow-sm bg-base-200 rounded-sm mx-1"
-          >
+
+      <div className="flex-1">
+        <PanelGroup direction="horizontal">
+          {/* left panel- problem desc */}
+          <Panel defaultSize={40} minSize={30}>
             <ProblemDescription
-              problem={problem}
-              onProblemChange={onProblemChange}
+              problem={currentProblem}
               currentProblemId={currentProblemId}
+              onProblemChange={handleProblemChange}
               allProblems={Object.values(PROBLEMS)}
             />
           </Panel>
-          <Separator className="w-2 bg-base-300 hover:bg-primary transition-colors duration-200 cursor-col-resize">
-            {' '}
-            <div className="mx-auto h-full w-px bg-neutral-800" />{' '}
-          </Separator>
-          <Panel defaultSize={60} minSize={40}>
-            <Group
-              orientation="vertical"
-              className="w-full h-full overflow-hidden"
-            >
-              <Panel
-                defaultSize={70}
-                minSize={30}
-                className="h-full border-2 border-primary/60 shadow-sm bg-base-200 rounded-sm mx-1"
-              >
-                <CodeEditor
+
+          <PanelResizeHandle className="w-2 bg-base-300 hover:bg-primary transition-colors cursor-col-resize" />
+
+          {/* right panel- code editor & output */}
+          <Panel defaultSize={60} minSize={30}>
+            <PanelGroup direction="vertical">
+              {/* Top panel - Code editor */}
+              <Panel defaultSize={70} minSize={30}>
+                <CodeEditorPanel
                   selectedLanguage={selectedLanguage}
                   code={code}
-                  onRunCode={handleRunCode}
-                  onLanguageChange={onLanguageChange}
-                  onCodeChange={setCode}
                   isRunning={isRunning}
-                ></CodeEditor>
+                  onLanguageChange={handleLanguageChange}
+                  onCodeChange={setCode}
+                  onRunCode={handleRunCode}
+                />
               </Panel>
-              <Separator className="h-1 bg-base-300 hover:bg-primary transition-colors duration-200 cursor-row-resize" />
-              <Panel
-                defaultSize={30}
-                minSize={30}
-                className="h-full border-2 border-primary/60 shadow-sm bg-base-200 rounded-sm mx-1"
-              >
+
+              <PanelResizeHandle className="h-2 bg-base-300 hover:bg-primary transition-colors cursor-row-resize" />
+
+              {/* Bottom panel - Output Panel*/}
+
+              <Panel defaultSize={30} minSize={30}>
                 <OutputPanel output={output} />
               </Panel>
-            </Group>
+            </PanelGroup>
           </Panel>
-        </Group>
+        </PanelGroup>
       </div>
     </div>
   );
-};
+}
 
 export default ProblemPage;
