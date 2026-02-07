@@ -3,7 +3,6 @@ import {
   ArrowRightIcon,
   CheckIcon,
   Code2Icon,
-  SparklesIcon,
   UsersIcon,
   VideoIcon,
   ZapIcon,

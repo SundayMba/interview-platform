@@ -7,12 +7,15 @@ import ProblemPage from './pages/ProblemPage';
 import ProblemsPage from './pages/ProblemsPage';
 import SessionPage from './pages/SessionPage';
 import DashboardPage from './pages/DashBoardPage';
+import { useState } from 'react';
 
 function App() {
   const { isSignedIn, isLoaded } = useUser();
+  const [firstTimeSignedIn, setFirstTimeSignedIn] = useState(true);
 
   // this will get rid of the flickering effect
   if (!isLoaded) return null;
+  // console.log(firstTimeSignedIn);
 
   return (
     <>
